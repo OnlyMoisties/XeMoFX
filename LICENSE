@@ -1,0 +1,46 @@
+XeMoFX License
+
+Copyright (c) 2026 XeMoisties (https://xemoistiesgames.com). All rights reserved
+except as granted below.
+
+I'm not updating XeMoFX any more. Anyone is free to pick it up and keep it
+going, as long as it stays free and you give credit.
+
+You MAY:
+
+  - read, study, build and use the code
+  - change it however you want
+  - fork it and release your own builds or continued versions, publicly,
+    as long as you follow every rule below
+
+Every copy or continued version MUST:
+
+  - be completely free, with the full source available under this same license
+  - keep this LICENSE file and the copyright line above
+  - credit "XeMoFX by XeMoisties" with a link to https://xemoistiesgames.com
+    in its README, and in any release page or download page for it
+  - make it clear it's a modified or continued version, not the original
+
+You may NOT, without my written permission:
+
+  - sell it, or put it behind any kind of paywall, key system, Patreon,
+    Ko-fi, Discord role, "premium" tier or donation lock
+  - bundle it, or any part of it, into a paid or closed-source plugin, mod
+    menu, payload, package (pkg), loader or tool
+  - remove the XeMoisties name or credits, or claim XeMoFX (or any part of it)
+    as your own original work
+  - use any part of it in a commercial project or anything that makes money
+
+If you break any of these terms your permission to use the code ends straight
+away.
+
+Third-party code keeps its own license and is not covered by this one:
+
+  - Dear ImGui (third_party/imgui) - MIT, see third_party/imgui/LICENSE.txt
+  - Noto Sans (third_party/fonts) - SIL Open Font License 1.1, see
+    third_party/fonts/OFL.txt
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND. YOU USE IT AT
+YOUR OWN RISK. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY CLAIM, DAMAGES OR
+OTHER LIABILITY ARISING FROM THE SOFTWARE OR ITS USE, INCLUDING DAMAGE TO YOUR
+CONSOLE OR YOUR SAVE DATA.

@@ -1,0 +1,29 @@
+struct ImVert
+{
+    float2 pos;
+    float2 uv;
+    uint   col;
+};
+RegularBuffer<ImVert> g_verts : register(t0);
+
+ConstantBuffer UiCB : register(b0)
+{
+    float4 g_xf;
+};
+
+struct VsOut
+{
+    float4 pos   : S_POSITION;
+    float2 uv    : TEXCOORD0;
+    float4 color : COLOR0;
+};
+
+VsOut main(uint id : S_VERTEX_ID)
+{
+    ImVert v = g_verts[id];
+    VsOut o;
+    o.pos = float4(v.pos.x * g_xf.x - 1.0f, 1.0f - v.pos.y * g_xf.y, 0.0f, 1.0f);
+    o.uv = v.uv;
+    o.color = float4(v.col & 255, (v.col >> 8) & 255, (v.col >> 16) & 255, v.col >> 24) / 255.0f;
+    return o;
+}

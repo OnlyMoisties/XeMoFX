@@ -1,0 +1,158 @@
+ConstantBuffer FxCB : register(b0)
+{
+    float4 g_p0;
+    float4 g_p1;
+    float4 g_p2;
+    uint4  g_p3;
+    float4 g_p4;
+    float4 g_p5;
+    float4 g_p6;
+    float4 g_p7;
+};
+
+#if FX_BUFFER
+DataBuffer<uint> g_src : register(t0);
+
+uint ProIntra(uint lx, uint ly)
+{
+    uint r = 0;
+    r ^= ((lx >> 0) & 1) * 0x1;    r ^= ((lx >> 1) & 1) * 0x2;    r ^= ((lx >> 2) & 1) * 0x8;
+    r ^= ((lx >> 3) & 1) * 0x40;   r ^= ((lx >> 4) & 1) * 0xC0;   r ^= ((lx >> 5) & 1) * 0x100;
+    r ^= ((lx >> 6) & 1) * 0x200;
+    r ^= ((ly >> 0) & 1) * 0x4;    r ^= ((ly >> 1) & 1) * 0x10;   r ^= ((ly >> 2) & 1) * 0x20;
+    r ^= ((ly >> 3) & 1) * 0x2040; r ^= ((ly >> 4) & 1) * 0x1080; r ^= ((ly >> 5) & 1) * 0xB00;
+    r ^= ((ly >> 6) & 1) * 0xC00;
+    return r;
+}
+
+float3 Fetch(int2 p)
+{
+    uint x = (uint)clamp(p.x, 0, (int)g_p3.x - 1), y = (uint)clamp(p.y, 0, (int)g_p3.y - 1);
+    uint tx = x >> 7, ty = y >> 7;
+    uint idx = ((ty * g_p3.z + tx) << 14) | (ProIntra(x & 127, y & 127) ^ ((tx & 7) << 10));
+    uint v = g_src[idx];
+    if (g_p3.w & 1)
+        return float3((v >> 20) & 1023, (v >> 10) & 1023, v & 1023) / 1023.0f;
+    return float3((v >> 16) & 255, (v >> 8) & 255, v & 255) / 255.0f;
+}
+#else
+Texture2D<float4> g_src : register(t0);
+
+float3 Fetch(int2 p)
+{
+    p = clamp(p, int2(0, 0), int2((int)g_p3.x - 1, (int)g_p3.y - 1));
+    return g_src.Load(int3(p, 0)).rgb;
+}
+#endif
+
+float Luma(float3 c) { return dot(c, float3(0.2126f, 0.7152f, 0.0722f)); }
+
+float Hash(float2 p)
+{
+    float3 q = frac(float3(p.xyx) * 0.1031f);
+    q += dot(q, q.yzx + 33.33f);
+    return frac((q.x + q.y) * q.z);
+}
+
+float3 Daltonize(float3 c, float mode)
+{
+    float3 L = float3(17.8824f * c.r + 43.5161f * c.g + 4.11935f * c.b,
+                      3.45565f * c.r + 27.1554f * c.g + 3.86714f * c.b,
+                      0.0299566f * c.r + 0.184309f * c.g + 1.46709f * c.b);
+    float3 s;
+    if (mode < 1.5f)      s = float3(2.02344f * L.y - 2.52581f * L.z, L.y, L.z);
+    else if (mode < 2.5f) s = float3(L.x, 0.494207f * L.x + 1.24827f * L.z, L.z);
+    else                  s = float3(L.x, L.y, -0.395913f * L.x + 0.801109f * L.y);
+    float3 sim = float3(0.0809444479f * s.x - 0.130504409f * s.y + 0.116721066f * s.z,
+                        -0.0102485335f * s.x + 0.0540193266f * s.y - 0.113614708f * s.z,
+                        -0.000365296938f * s.x - 0.00412161469f * s.y + 0.693511405f * s.z);
+    float3 e = c - sim;
+    return saturate(c + float3(0.0f, 0.7f * e.r + e.g, 0.7f * e.r + e.b));
+}
+
+float4 main(float4 pos : S_POSITION) : S_TARGET_OUTPUT
+{
+    int2 p = int2(pos.xy);
+    float2 res = float2(g_p3.xy);
+    float3 c = Fetch(p);
+
+    if (g_p7.y > 0.0f && pos.x < res.x * g_p7.y)
+        return float4(c, 1.0f);
+
+    if (g_p6.z > 0.0f)
+    {
+        float bar = max(0.0f, (res.y - res.x / g_p6.z) * 0.5f);
+        if (pos.y < bar || pos.y > res.y - bar) return float4(0.0f, 0.0f, 0.0f, 1.0f);
+    }
+
+    if (g_p6.y > 0.0f)
+    {
+        float2 d = (pos.xy - res * 0.5f) / res.x;
+        int2 o = int2(d * g_p6.y * 24.0f);
+        c.r = Fetch(p + o).r;
+        c.b = Fetch(p - o).b;
+    }
+
+    if (g_p0.x > 0.0f)
+    {
+        float3 n = Fetch(p + int2(0, -1)), s = Fetch(p + int2(0, 1)), e = Fetch(p + int2(1, 0)), w = Fetch(p + int2(-1, 0));
+        float3 mn = min(c, min(min(n, s), min(e, w))), mx = max(c, max(max(n, s), max(e, w)));
+        float3 amp = saturate(min(mn, 1.0f - mx) / max(mx, 1e-4f));
+        float3 wgt = sqrt(amp) * (-0.125f - 0.075f * g_p0.x);
+        c = saturate((c + (n + s + e + w) * wgt) / (1.0f + 4.0f * wgt));
+    }
+
+    if (g_p4.x > 0.0f)
+    {
+        float3 b = Fetch(p + int2(-4, 0)) + Fetch(p + int2(4, 0)) + Fetch(p + int2(0, -4)) + Fetch(p + int2(0, 4))
+                 + Fetch(p + int2(-3, -3)) + Fetch(p + int2(3, -3)) + Fetch(p + int2(-3, 3)) + Fetch(p + int2(3, 3));
+        float lc = Luma(c), lb = Luma(b * 0.125f);
+        float mid = 1.0f - abs(lc * 2.0f - 1.0f);
+        c += (lc - lb) * g_p4.x * mid * mid;
+    }
+
+    if (g_p6.x > 0.0f)
+    {
+        float3 g = 0.0f;
+        const int2 k[12] = { int2(10, 0), int2(-10, 0), int2(0, 10), int2(0, -10), int2(7, 7), int2(-7, 7), int2(7, -7), int2(-7, -7),
+                             int2(18, 0), int2(-18, 0), int2(0, 18), int2(0, -18) };
+        for (int i = 0; i < 12; ++i) g += max(Fetch(p + k[i]) - 0.6f, 0.0f);
+        c += g * (g_p6.x * 0.35f / 12.0f) * 2.5f;
+    }
+
+    c *= exp2(g_p5.x);
+    c = saturate((c - g_p4.z) / max(g_p4.w - g_p4.z, 0.05f));
+    {
+        float l = Luma(c);
+        c += g_p5.y * 0.35f * (1.0f - l) * (1.0f - l) * (1.0f - l);
+        c -= g_p5.z * 0.35f * l * l * l;
+    }
+    c = c + g_p1.x;
+    c = (c - 0.5f) * g_p0.y + 0.5f;
+    c = pow(saturate(c), g_p1.y);
+    if (g_p4.y > 0.0f)
+        c = lerp(c, c * c * (3.0f - 2.0f * c), g_p4.y);
+    float l = Luma(c);
+    c = lerp(float3(l, l, l), c, g_p0.z);
+    float sat = max(c.r, max(c.g, c.b)) - min(c.r, min(c.g, c.b));
+    c = lerp(float3(l, l, l), c, 1.0f + g_p0.w * (1.0f - sat));
+    c *= g_p2.rgb;
+    if (g_p5.w != 0.0f)
+        c += g_p5.w * ((1.0f - l) * float3(-0.05f, 0.02f, 0.06f) + l * float3(0.07f, 0.02f, -0.06f));
+    if (g_p7.x > 0.5f) c = Daltonize(saturate(c), g_p7.x);
+
+    if (g_p1.z > 0.0f)
+    {
+        float2 uv = pos.xy / res - 0.5f;
+        uv.x *= res.x / res.y;
+        c *= 1.0f - g_p1.z * smoothstep(0.35f, 1.05f, length(uv));
+    }
+    if (g_p6.w > 0.0f)
+        c *= 1.0f - g_p6.w * 0.45f * (((uint)pos.y & 1) ? 1.0f : 0.0f);
+    if (g_p1.w > 0.0f)
+        c += (Hash(pos.xy + frac(g_p2.w) * 1024.0f) - 0.5f) * g_p1.w * 0.1f;
+    if (g_p3.w & 4)
+        c += (Hash(pos.yx * 1.37f) - 0.5f) / 255.0f;
+
+    return float4(saturate(c), 1.0f);
+}

@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|ORBIS">
+      <Configuration>Debug</Configuration>
+      <Platform>ORBIS</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Prod|ORBIS">
+      <Configuration>Prod</Configuration>
+      <Platform>ORBIS</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Dev|ORBIS">
+      <Configuration>Dev</Configuration>
+      <Platform>ORBIS</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCTargetsPath Condition="'$(VCTargetsPath11)' != '' and '$(VSVersion)' == '' and '$(VisualStudioVersion)' == ''">$(VCTargetsPath11)</VCTargetsPath>
+    <ProjectGuid>{6F1C2E7A-4B3D-4E9A-9C55-1D2E3F4A5B60}</ProjectGuid>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ORBIS'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <TargetName>XeMoFXRaw</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Prod|ORBIS'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <TargetName>XeMoFXRaw</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Dev|ORBIS'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <TargetName>XeMoFXRaw</TargetName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <PropertyGroup>
+    <OutDir>$(ProjectDir)build\</OutDir>
+    <IntDir>$(ProjectDir)obj\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup>
+    <OrbisWavePsslcPropsPath>$(VCTargetsPath)\BuildCustomizations\OrbisWavePsslc.props</OrbisWavePsslcPropsPath>
+    <OrbisWavePsslcTargetsPath>$(VCTargetsPath)\BuildCustomizations\OrbisWavePsslc.targets</OrbisWavePsslcTargetsPath>
+    <SCUPropsPath>$(VCTargetsPath)\BuildCustomizations\SCU.props</SCUPropsPath>
+    <SCUTargetsPath>$(VCTargetsPath)\BuildCustomizations\SCU.targets</SCUTargetsPath>
+  </PropertyGroup>
+  <ImportGroup Label="ExtensionSettings">
+    <Import Project="$(OrbisWavePsslcPropsPath)" Condition="Exists('$(OrbisWavePsslcPropsPath)')" />
+    <Import Project="$(SCUPropsPath)" Condition="Exists('$(SCUPropsPath)')" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|ORBIS'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Prod|ORBIS'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Dev|ORBIS'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup />
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ORBIS'">
+    <ClCompile>
+      <PreprocessorDefinitions>_DEBUG;XEMOFX_LOG;%(PreprocessorDefinitions);</PreprocessorDefinitions>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <DisableSpecificWarnings>deprecated-writable-strings</DisableSpecificWarnings>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>-lkernel_stub_weak;-lSceVideoOut_stub_weak;-lScePad_stub_weak;-lSceGnm;-lSceGnmx;-lSceGpuAddress;-lSceGnmDriver_stub_weak;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <PostBuildEvent>
+      <Command>call "$(ProjectDir)post.bat" "$(TargetPath)" "$(Configuration)"</Command>
+      <Message>Signing XeMoFXRaw.prx -&gt; XeMoFX.prx...</Message>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Prod|ORBIS'">
+    <ClCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions);</PreprocessorDefinitions>
+      <OptimizationLevel>Level2</OptimizationLevel>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <DisableSpecificWarnings>deprecated-writable-strings</DisableSpecificWarnings>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>-lkernel_stub_weak;-lSceVideoOut_stub_weak;-lScePad_stub_weak;-lSceGnm;-lSceGnmx;-lSceGpuAddress;-lSceGnmDriver_stub_weak;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <PostBuildEvent>
+      <Command>call "$(ProjectDir)post.bat" "$(TargetPath)" "$(Configuration)"</Command>
+      <Message>Signing XeMoFXRaw.prx -&gt; XeMoFX.prx...</Message>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Dev|ORBIS'">
+    <ClCompile>
+      <PreprocessorDefinitions>NDEBUG;XEMOFX_LOG;%(PreprocessorDefinitions);</PreprocessorDefinitions>
+      <OptimizationLevel>Level2</OptimizationLevel>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <Warnings>WarningsOff</Warnings>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>-lkernel_stub_weak;-lSceVideoOut_stub_weak;-lScePad_stub_weak;-lSceGnm;-lSceGnmx;-lSceGpuAddress;-lSceGnmDriver_stub_weak;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <PostBuildEvent>
+      <Command>call "$(ProjectDir)post.bat" "$(TargetPath)" "$(Configuration)"</Command>
+      <Message>Signing XeMoFXRaw.prx -&gt; XeMoFX.prx...</Message>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\Fx.cpp" />
+    <ClCompile Include="src\Config.cpp" />
+    <ClCompile Include="src\Util.cpp" />
+    <ClCompile Include="src\Menu.cpp" />
+    <ClCompile Include="third_party\imgui\imgui.cpp" />
+    <ClCompile Include="third_party\imgui\imgui_draw.cpp" />
+    <ClCompile Include="third_party\imgui\imgui_tables.cpp" />
+    <ClCompile Include="third_party\imgui\imgui_widgets.cpp" />
+  </ItemGroup>
+  <Import Condition="'$(ConfigurationType)' == 'Makefile' and Exists('$(VCTargetsPath)\Platforms\$(Platform)\SCE.Makefile.$(Platform).targets')" Project="$(VCTargetsPath)\Platforms\$(Platform)\SCE.Makefile.$(Platform).targets" />
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+    <Import Project="$(OrbisWavePsslcTargetsPath)" Condition="Exists('$(OrbisWavePsslcTargetsPath)')" />
+    <Import Project="$(SCUTargetsPath)" Condition="Exists('$(SCUTargetsPath)')" />
+  </ImportGroup>
+</Project>

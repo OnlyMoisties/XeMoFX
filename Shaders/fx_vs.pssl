@@ -1,0 +1,12 @@
+struct VsOut
+{
+    float4 pos : S_POSITION;
+};
+
+VsOut main(uint id : S_VERTEX_ID)
+{
+    VsOut o;
+    float2 t = float2((id << 1) & 2, id & 2);
+    o.pos = float4(t.x * 2.0f - 1.0f, 1.0f - t.y * 2.0f, 0.0f, 1.0f);
+    return o;
+}

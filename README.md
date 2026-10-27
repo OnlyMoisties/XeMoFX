@@ -1,0 +1,178 @@
+# XeMoFX
+
+**by XeMoisties** · [xemoistiesgames.com](https://xemoistiesgames.com)
+
+Post processing for PS4 games. It's a GoldHEN plugin that sits on top of the game's final frame and grades it on the GPU before it hits the screen: sharpening, local contrast, proper blacks, colour grading, glow, film stuff. Think ReShade, but on the console, with an in-game menu on the controller.
+
+Written from scratch by me (XeMoisties), same guy behind XeMoNet and the rest of the stuff on [xemoistiesgames.com](https://xemoistiesgames.com). No game files are touched; turn the plugin off and the game is exactly how it was.
+
+> **This is a one-off release, I won't be updating or supporting it.** No new features, no fixes, no per-game requests. If you want to keep it going, fork it and carry it on, that's what the source is up for. Just keep it free and give credit (see [License](#license)).
+
+Grab the prx from [Releases](../../releases).
+
+## Screenshots
+
+GTA V on PS4 Pro. The split ones are the built-in compare mode, original on the left, XeMoFX on the right.
+
+![GTA V sunset with XeMoFX](docs/gta-sunset.jpg)
+
+![Compare - street at dusk](docs/gta-compare-street.jpg)
+
+![Compare - helipad](docs/gta-compare-helipad.jpg)
+
+![Compare - city at night](docs/gta-compare-city.jpg)
+
+## What it does
+
+**Detail**
+- Sharpen (contrast adaptive, so no halos round edges)
+- Clarity (local contrast in the mid-tones)
+- Glow (bright bits bleed out a bit, cheap bloom)
+- Deband (hides 8-bit colour banding in skies and fog)
+
+**Colour**
+- Saturation, vibrance (lifts dull colours more than ones that are already strong)
+- Warmth, green / magenta tint
+- Teal & orange (the blockbuster film look)
+- Colour blind correction: protan, deutan, tritan
+
+**Light**
+- Exposure, contrast, gamma, brightness
+- Black level / white level (kills the grey washed-out blacks a lot of PS4 games have)
+- Shadows and highlights, filmic S-curve
+
+**Lens & film**
+- Vignette, film grain, chromatic aberration, CRT scanlines
+- Cinema bars (2.39, 2.00, 1.85)
+
+**Other**
+- Split screen compare (original on one side, XeMoFX on the other), stays on until you turn it off
+- FPS counter
+- 23 built-in presets, plus save your own
+- Settings saved per game
+
+## Presets
+
+Natural, Vivid, Cinematic, Crisp, Warm, Cool, Noir, Retro, GTA Realism, GTA Photoreal, GTA Real Sunny, GTA Golden Hour, GTA Overcast, GTA Night Neon, GTA Gritty, GTA Movie, GTA Cinematic, Dehaze, Clean HD, Hyper Vivid, Faded Film, Arcade CRT, Dreamy.
+
+The GTA ones are tuned for GTA V on PS4 (deeper blacks, calmer colours, more detail) but they work fine on other games too. **GTA Realism** is the one to start with.
+
+## Controls
+
+| Buttons | What |
+|---|---|
+| L1 + Square | open / close the menu |
+| Up / Down | pick a row |
+| Left / Right | change it (hold to go faster) |
+| X | open a page / press |
+| Triangle | reset the value |
+| Circle | back / close |
+| R3 + Left | effects on / off (menu closed) |
+| R3 + Right / Up | next / previous preset (menu closed) |
+
+While the menu is open the game doesn't get your inputs.
+
+## Install
+
+1. Copy `XeMoFX.prx` to `/data/GoldHEN/plugins/` on the console.
+2. Add it under the game you want in `/data/GoldHEN/plugins.ini`:
+
+```ini
+[CUSA00411]
+/data/GoldHEN/plugins/XeMoFX.prx
+```
+
+3. Start the game. You'll get a "XeMoFX loaded" notification, then press L1 + Square.
+
+It works alongside other plugins, just put it on its own line under the same title.
+
+## Config files
+
+Everything lives in `/data/GoldHEN/XeMoFX/`:
+
+- `presets/*.ini` - one file per preset. Built-ins get written here on first run so you can edit them. Drop your own `.ini` in here and it shows up in the menu.
+- `<TITLEID>.ini` - what's on for that game (preset, effects on/off, compare, fps counter, menu side). Written by the plugin.
+- `XeMoFX.ini` - optional global defaults, same keys as the per-game file.
+
+A preset file is just `key = value`:
+
+```ini
+name = My Look
+sharpen = 0.45
+clarity = 0.30
+black = 0.03
+saturation = 0.95
+vibrance = 0.20
+teal_orange = 0.25
+letterbox = 0
+```
+
+Anything you leave out stays at its default.
+
+## Game support
+
+It's not made for one game, it hooks the PS4's own graphics calls, so in theory it works on loads of games. In practice it works on most but not all, because games don't all do things the same way.
+
+**Working:**
+
+- GTA V (CUSA00411 / CUSA00419)
+- Assetto Corsa (CUSA01830)
+- The Forest (CUSA12398)
+
+Tested on a PS4 Pro in both Pro mode (The Forest) and normal mode (GTA, Assetto). A normal PS4 uses the same path as a Pro in normal mode so it should be fine, it's just a weaker GPU so the heavier stuff (glow, chromatic) costs more.
+
+**Why it works on some games and not others**
+
+A game needs to do these four things the normal way:
+
+1. **Show its frames with the standard flip call.** Most games do. Some (Borderlands 2 for one) put frames on screen a different way, XeMoFX never sees the frame so nothing happens.
+2. **End each frame the standard way.** XeMoFX puts its pass right before the game's flip. If the end of the game's frame doesn't look like it expects (Castle Crashers is one) it won't risk it and switches off.
+3. **Use a normal 8-bit screen.** A few games use a 10-bit screen. That's fine in normal mode, but 10-bit in PS4 Pro mode isn't supported yet (The Last of Us Remastered on a Pro).
+4. **Leave a bit of GPU memory free.** It needs about 40-50 MB, more at 4K. Some big 4K Pro games (Tekken 7) take nearly all of it at startup, then you get "not enough free memory" instead of the effect.
+
+Some games just don't like anything else drawing on the GPU at the end of their frame and hang (Rec Room 05.39, Terraria). Those need a different method and aren't supported.
+
+**If it doesn't work in a game** you'll get a "XeMoFX can't draw in this game" message with the reason, and it leaves that game alone. It never half-applies or messes with the frame. Worst case is nothing happens. If a game freezes with it, just take the line out of plugins.ini for that game.
+
+## Building
+
+You need:
+
+- PS4 SDK 1.750 (headers, `orbis-psslc`, `orbis-clang`)
+- Visual Studio 2012 build tools (the V110 platform toolset the SDK uses)
+- Git for Windows (the shader script uses its bash + `xxd`)
+- `make_fself.exe` dropped in `tools/` (signs the prx, not included here)
+
+Then:
+
+```bat
+Shaders\build_shaders.bat
+build_fx.bat
+```
+
+That gives you `build\XeMoFX.prx` (signed). `build_fx.bat /p:Configuration=Dev` makes a build that writes a log to `/data/GoldHEN/XeMoFX/XeMoFX.log`, handy if a game isn't working.
+
+## How it works (short version)
+
+- Hooks the game's flip, display buffer setup and pad reads by swapping the resolved import addresses, so there's no per-game offsets.
+- On each flip it takes the game's last command buffer and rebuilds it as: the game's commands, then a copy of the finished frame, then one full screen pass that writes the graded image back, then the menu, then the game's own flip. Same number of buffers, nothing extra submitted.
+- The display layout is read from the game's own render target registers. PS4 Pro "Neo" tiling isn't supported by the SDK textures so on Pro the shader reads the frame as raw memory and works out the tiling itself.
+- There's a per-frame fence, so if the GPU is behind it skips the effect for that frame instead of waiting.
+
+## More from XeMoisties
+
+- **[xemoistiesgames.com](https://xemoistiesgames.com)** - XeMoNet, online for PS4 games that lost their servers, and everything else I make
+- **[games.xemoistiesgames.com](https://games.xemoistiesgames.com)** - list of supported games
+
+## Credits
+
+- **XeMoisties** - XeMoFX, everything in `src/` and `Shaders/`
+- [Dear ImGui](https://github.com/ocornut/imgui) by Omar Cornut (font atlas + draw lists for the menu), MIT
+- [Noto Sans](https://github.com/notofonts/latin-greek-cyrillic) by Google / the Noto Project (menu font), SIL Open Font License 1.1
+- GoldHEN team for the plugin loader
+
+## License
+
+Fork it, change it, carry it on, release your own builds, all fine. The rules: it has to stay free with the source up, keep the LICENSE, credit **XeMoFX by XeMoisties** with a link to [xemoistiesgames.com](https://xemoistiesgames.com), and say it's a continued version. No selling it, no paywalls or key systems, no putting it in paid or closed menus/plugins, and don't pass it off as your own. Full terms in [LICENSE](LICENSE).
+
+© 2026 XeMoisties · [xemoistiesgames.com](https://xemoistiesgames.com)
