@@ -10,6 +10,12 @@ Written from scratch by me (XeMoisties), same guy behind XeMoNet and the rest of
 
 Grab the prx from [Releases](../../releases).
 
+## Video
+
+[![XeMoFX video](docs/gta-compare-city.jpg)](https://youtu.be/97cvkV1gIe4)
+
+Watch it here: https://youtu.be/97cvkV1gIe4
+
 ## Screenshots
 
 GTA V on PS4 Pro. The split ones are the built-in compare mode, original on the left, XeMoFX on the right.
