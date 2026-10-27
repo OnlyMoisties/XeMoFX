@@ -8,7 +8,7 @@ Written from scratch by me (XeMoisties), same guy behind XeMoNet and the rest of
 
 > **This is a one-off release, I won't be updating or supporting it.** No new features, no fixes, no per-game requests. If you want to keep it going, fork it and carry it on, that's what the source is up for. Just keep it free and give credit (see [License](#license)).
 
-Grab the prx from [Releases](../../releases).
+Grab it from [Releases](../../releases): the **XeMoFX app** (easiest), or the prx + LUT pack on their own.
 
 ## Video
 
@@ -28,11 +28,28 @@ GTA V on PS4 Pro. The split ones are the built-in compare mode, original on the 
 
 ![Compare - city at night](docs/gta-compare-city.jpg)
 
+![Compare - highway](docs/gta-compare-highway.jpg)
+
+![Compare - car](docs/gta-compare-car.jpg)
+
+![Compare - parked cars](docs/gta-compare-parked.jpg)
+
+![City in the day with XeMoFX](docs/gta-city-day.jpg)
+
+![Compare - close up](docs/gta-compare-close.jpg)
+
+![Compare - night](docs/gta-compare-night.jpg)
+
+![Compare - city at night 2](docs/gta-compare-night-city.jpg)
+
+![Night with XeMoFX](docs/gta-night.jpg)
+
 ## What it does
 
 **Detail**
 - Sharpen (contrast adaptive, so no halos round edges)
 - Clarity (local contrast in the mid-tones)
+- Fake HDR (pulls detail out of dark and bright areas at the same time, gives the picture depth)
 - Glow (bright bits bleed out a bit, cheap bloom)
 - Deband (hides 8-bit colour banding in skies and fog)
 
@@ -40,6 +57,10 @@ GTA V on PS4 Pro. The split ones are the built-in compare mode, original on the 
 - Saturation, vibrance (lifts dull colours more than ones that are already strong)
 - Warmth, green / magenta tint
 - Teal & orange (the blockbuster film look)
+- Reds / greens / blues on their own (e.g. tone down GTA's over-green trees without touching skin)
+- Shadow tint and highlight tint (cool shadows + warm highlights is what real light looks like)
+- Hue shift
+- **LUTs** - drop `.cube` or `.png` LUT files in `/data/GoldHEN/XeMoFX/luts/` and pick them in the menu, with a strength slider. Works on any game
 - Colour blind correction: protan, deutan, tritan
 
 **Light**
@@ -50,24 +71,41 @@ GTA V on PS4 Pro. The split ones are the built-in compare mode, original on the 
 **Lens & film**
 - Vignette, film grain, chromatic aberration, CRT scanlines
 - Cinema bars (2.39, 2.00, 1.85)
+- Filters: sepia, mono, night vision, thermal
+
+**Distort**
+- Fisheye, swirl, wave (+ frequency), RGB split, mirror
+- Edge outline, emboss, VHS wobble, pixelate, posterize
 
 **Other**
 - Split screen compare (original on one side, XeMoFX on the other), stays on until you turn it off
 - FPS counter
-- 23 built-in presets, plus save your own
+- 30 built-in presets, plus save your own, plus a random preset button
+- Picks a good preset on its own the first time you load a game it knows (GTA V starts on Ultra Realism, racing games on Clean HD)
 - Settings saved per game
+- Menu combo can be changed in settings (L1, R1, L2 or R2 + Square) if it clashes with a game
+- Load notification can be turned off
+- Auto exposure (adjusts to bright / dark scenes like your eyes do) and night mode (lifts dark scenes), both optional
+- Presets fade into each other instead of snapping
+- Works if you inject it into a game that's already running, not just from plugins.ini
 
 ## Presets
 
-Natural, Vivid, Cinematic, Crisp, Warm, Cool, Noir, Retro, GTA Realism, GTA Photoreal, GTA Real Sunny, GTA Golden Hour, GTA Overcast, GTA Night Neon, GTA Gritty, GTA Movie, GTA Cinematic, Dehaze, Clean HD, Hyper Vivid, Faded Film, Arcade CRT, Dreamy.
+**Realism:** Ultra Realism, Real Life, GTA Realism, GTA Photoreal, GTA HDR, GTA Real Sunny, GTA Golden Hour, GTA Overcast, GTA Night Neon, GTA Gritty, Dehaze, Clean HD
 
-The GTA ones are tuned for GTA V on PS4 (deeper blacks, calmer colours, more detail) but they work fine on other games too. **GTA Realism** is the one to start with.
+**Film / mood:** Cinematic, GTA Movie, GTA Cinematic, Noir, Retro, Faded Film, Dreamy, Warm, Cool, Lush
+
+**Colour:** Natural, Vivid, Crisp, Hyper Vivid
+
+**Fun:** Arcade CRT, Sepia, Night Vision, Thermal
+
+**Ultra Realism** is the one to start with if you want it looking like real life. It's made for GTA V but works on pretty much anything.
 
 ## Controls
 
 | Buttons | What |
 |---|---|
-| L1 + Square | open / close the menu |
+| L1 + Square | open / close the menu (can be changed in settings) |
 | Up / Down | pick a row |
 | Left / Right | change it (hold to go faster) |
 | X | open a page / press |
@@ -80,6 +118,17 @@ While the menu is open the game doesn't get your inputs.
 
 ## Install
 
+**The easy way: the XeMoFX app**
+
+1. Install `XeMoFX-App.pkg` from Releases (Debug Settings > Package Installer, or any pkg installer).
+2. Open it and press **install / update**. That puts the plugin and all 10 XeMo LUTs on your console.
+3. Go to **games** and turn XeMoFX on for the games you want. It lists every game in your plugins.ini.
+4. Start the game. You'll get "XeMoFX - built & signed by XeMoisties", then press L1 + Square.
+
+No account, no key, works offline.
+
+**The manual way**
+
 1. Copy `XeMoFX.prx` to `/data/GoldHEN/plugins/` on the console.
 2. Add it under the game you want in `/data/GoldHEN/plugins.ini`:
 
@@ -88,9 +137,16 @@ While the menu is open the game doesn't get your inputs.
 /data/GoldHEN/plugins/XeMoFX.prx
 ```
 
-3. Start the game. You'll get a "XeMoFX loaded" notification, then press L1 + Square.
+3. Unzip `XeMoFX-LUTs.zip` into `/data/GoldHEN/XeMoFX/` if you want the LUTs.
+4. Start the game, then press L1 + Square.
 
-It works alongside other plugins, just put it on its own line under the same title.
+It works alongside other plugins, just put it on its own line under the same title. You can also inject it into a game that's already running: you'll see "please wait" while it finds the screen, then "ready".
+
+## LUTs
+
+The release comes with 10 of my own LUTs: **XeMo Real Life, Teal Orange, Bleach Bypass, Warm Film, Cold Night, Mono Contrast, Kodak Cinema, Soft Overcast, Golden Hour, Neon Night.**
+
+Any `.cube` file works too (or a `.png` LUT strip), from a LUT pack or exported from Photoshop, Resolve or Lightroom. Drop it in `/data/GoldHEN/XeMoFX/luts/` and it shows up under colour > lut next time the game starts.
 
 ## Config files
 
@@ -110,7 +166,12 @@ black = 0.03
 saturation = 0.95
 vibrance = 0.20
 teal_orange = 0.25
+fake_hdr = 0.40
+sat_greens = -0.10
+shadow_tint = -0.15
+highlight_tint = 0.20
 letterbox = 0
+filter = 0
 ```
 
 Anything you leave out stays at its default.
@@ -119,13 +180,7 @@ Anything you leave out stays at its default.
 
 It's not made for one game, it hooks the PS4's own graphics calls, so in theory it works on loads of games. In practice it works on most but not all, because games don't all do things the same way.
 
-**Working:**
-
-- GTA V (CUSA00411 / CUSA00419)
-- Assetto Corsa (CUSA01830)
-- The Forest (CUSA12398)
-
-Tested on a PS4 Pro in both Pro mode (The Forest) and normal mode (GTA, Assetto). A normal PS4 uses the same path as a Pro in normal mode so it should be fine, it's just a weaker GPU so the heavier stuff (glow, chromatic) costs more.
+Tested on a PS4 Pro in both Pro mode and normal mode. A normal PS4 uses the same path as a Pro in normal mode so it should be fine, it's just a weaker GPU so the heavier stuff (glow, chromatic) costs more.
 
 **Why it works on some games and not others**
 
@@ -141,6 +196,8 @@ Some games just don't like anything else drawing on the GPU at the end of their 
 **If it doesn't work in a game** you'll get a "XeMoFX can't draw in this game" message with the reason, and it leaves that game alone. It never half-applies or messes with the frame. Worst case is nothing happens. If a game freezes with it, just take the line out of plugins.ini for that game.
 
 ## Building
+
+The source in this repo is **v1.0**. Newer versions are release-only, so building from here gives you v1.0.
 
 You need:
 
@@ -175,6 +232,7 @@ That gives you `build\XeMoFX.prx` (signed). `build_fx.bat /p:Configuration=Dev` 
 - **XeMoisties** - XeMoFX, everything in `src/` and `Shaders/`
 - [Dear ImGui](https://github.com/ocornut/imgui) by Omar Cornut (font atlas + draw lists for the menu), MIT
 - [Noto Sans](https://github.com/notofonts/latin-greek-cyrillic) by Google / the Noto Project (menu font), SIL Open Font License 1.1
+- [stb_image](https://github.com/nothings/stb) by Sean Barrett (PNG LUT loading), MIT / public domain
 - GoldHEN team for the plugin loader
 
 ## License
